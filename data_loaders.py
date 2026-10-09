@@ -23,14 +23,20 @@ def load_json(filepath):
     """Load a JSON file into a Python object (dict or list).
     filepath is a Path object.
     """
-    pass
+    with open(filepath, "r") as f:
+        data = json.load(f)
+    logger.info(f"Loaded JSON file: {filepath}")
+    return data
 
 
 def load_yaml(filepath):
     """Load a YAML file into a Python object.
     filepath is a Path object.
     """
-    pass
+    with open(filepath, "r") as f:
+        data = yaml.safe_load(f)
+    logger.info(f"Loaded YAML file: {filepath}")
+    return data
 
 
 def load_data(filepath):
