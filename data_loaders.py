@@ -15,8 +15,9 @@ def load_csv(filepath):
     """Load a CSV file into a DataFrame.
     filepath is a Path object.
     """
-    pass
-
+    df = pd.read_csv(filepath)
+    logger.info(f"Loaded CSV file: {filepath} ({len(df)} rows)")
+    return df
 
 def load_json(filepath):
     """Load a JSON file into a Python object (dict or list).
