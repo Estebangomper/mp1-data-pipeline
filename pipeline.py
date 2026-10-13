@@ -4,20 +4,25 @@ Data Processing Pipeline - CLI Template
 DS 3500 - MP1
 
 Usage:
-    python pipeline.py --input fixtures/sample.csv --config config.yaml --output cleaned_data.csv
-    python pipeline.py --input fixtures/sample.csv --config config.yaml --output cleaned_data.csv --verbose
+    python pipeline.py --input fixtures/sample_data.csv --config config/config.yaml --output output/clean.csv
+    python pipeline.py --input fixtures/sample_data.csv --config config/config.yaml --output output/clean.csv --verbose
 """
 
 import argparse
 import logging
 import sys
-from pathlib import Path
 
-from data_loaders import load_data
-from data_processor import process_data, create_cleaning_report
+from src import (
+    create_cleaning_report,
+    load_data,
+    process_data,
+    save_data,
+    setup_logging,
+    validate_dataframe,
+    validate_input,
+)
 
 logger = logging.getLogger(__name__)
-
 
 
 def parse_arguments():
@@ -39,14 +44,13 @@ def parse_arguments():
         "--output", "-o",
         required=True,
         help="Path to the output file",
-    )  
+    )
     parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Enable verbose (DEBUG) logging",
     )
     return parser.parse_args()
-
 
 
 def main():
@@ -70,6 +74,16 @@ def main():
     except ValueError:
         sys.exit(1)
 
+    rows_loaded = len(data)
+    required_columns = config["validation"]["required_columns"]
+    numeric_columns = config["validation"]["numeric_columns"]
+
+    try:
+        data = validate_dataframe(data, required_columns, numeric_columns)
+    except ValueError:
+        sys.exit(1)
+    logger.info(f"Validation complete: {rows_loaded} -> {len(data)} rows")
+
     df_original = data.copy()
 
     try:
@@ -78,11 +92,13 @@ def main():
         sys.exit(1)
 
     report = create_cleaning_report(df_original, df_cleaned)
-    print(report)
     logger.info(f"Processing complete: {len(df_original)} → {len(df_cleaned)} rows")
 
-    df_cleaned.to_csv(args.output, index=False)
-    logger.info(f"Saved cleaned data to {args.output}")
+    output_path = save_data(df_cleaned, args.output)
+    logger.info(f"Saved cleaned data to {output_path}")
+
+    print("Cleaning report:")
+    print(report)
 
 
 if __name__ == "__main__":
