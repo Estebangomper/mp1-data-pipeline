@@ -4,8 +4,8 @@ Data Processing Pipeline - CLI Template
 DS 3500 - MP1
 
 Usage:
-    python pipeline.py --input data.csv --output clean.csv
-    python pipeline.py --input data.csv --output results.json --format json --verbose
+    python pipeline.py --input fixtures/sample.csv --config config.yaml --output cleaned_data.csv
+    python pipeline.py --input fixtures/sample.csv --config config.yaml --output cleaned_data.csv --verbose
 """
 
 import argparse
@@ -18,19 +18,6 @@ from data_processor import process_data, create_cleaning_report
 
 logger = logging.getLogger(__name__)
 
-
-def setup_logging(verbose=False):
-    """Configure logging for the pipeline."""
-    if verbose:
-        level = logging.DEBUG
-    else:
-        level = logging.INFO
-
-    logging.basicConfig(
-        level=level,
-    format="%(asctime)s %(levelname)-8s %(name)s — %(message)s",
-        datefmt="%H:%M:%S",
-    )
 
 
 def parse_arguments():
@@ -60,15 +47,6 @@ def parse_arguments():
     )
     return parser.parse_args()
 
-
-def validate_input(filepath):
-    """Check whether the input path exists and is a file."""
-    if Path(filepath).is_file():
-        logger.info(f"Input file validated: {filepath}")
-        return True
-
-    logger.error(f"Input file not found: {filepath}")
-    return False
 
 
 def main():
